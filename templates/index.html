@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lodówka.ai</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav>
+  <div class="logo">lodówka<span>.ai</span></div>
+
+  <div class="nav-actions">
+
+  {% if current_user %}
+
+    <span class="user-email">
+      {{ current_user.email }}
+    </span>
+
+    <a href="/logout" class="logout-btn">
+      Wyloguj
+    </a>
+
+  {% else %}
+
+    <button class="login-btn" onclick="openModal()">
+      Zaloguj
+    </button>
+
+  {% endif %}
+
+  <button class="theme-toggle" id="theme-toggle" title="Przełącz tryb">
+    ☀️
+  </button>
+
+</div>
+</nav>
+
+  <section class="hero">
+    <h1>Twoja lodówka <br/>pod kontrolą AI.</h1>
+    <p class="subtitle">Zrób zdjęcie, a my zajmiemy się resztą. Rozpoznamy produkty i podpowiemy, co z nich zrobić.</p>
+
+    <div class="info-chips">
+      <div class="chip"><span>●</span> System Vision AI</div>
+      <div class="chip"><span>●</span> Szybka analiza</div>
+      <div class="chip"><span>●</span> Rozpoznawanie produktów</div>
+    </div>
+
+    <div class="upload-container">
+        <form action="/" method="POST" enctype="multipart/form-data" id="upload-form">
+          <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <input type="file" name="photo" id="file-input" accept="image/*" onchange="document.getElementById('upload-form').submit()" style="display:none" />
+            <p style="font-weight: 600;">Dodaj zdjęcie lodówki</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem;">Kliknij, aby wybrać plik</p>
+          </div>
+        </form>
+    </div>
+  </section>
+
+{% if current_user %}
+<section class="profile-section">
+
+  <div class="card">
+    <span class="section-title">Profil użytkownika</span>
+
+    <div class="profile-box">
+      <div class="avatar">P</div>
+
+      <div>
+        <h3>Paweł</h3>
+        <p>Dodawaj własne przepisy i buduj swoją bazę.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="section-title">Dodaj własny przepis</span>
+
+    <form method="POST" class="recipe-form">
+
+      <input
+        type="text"
+        name="recipe_name"
+        placeholder="Nazwa przepisu"
+        required
+      >
+
+      <textarea
+        name="ingredients"
+        placeholder="Składniki np. jajka, ser, pomidory..."
+        required
+      ></textarea>
+
+      <button type="submit" class="add-btn">
+        Dodaj przepis
+      </button>
+
+    </form>
+  </div>
+
+</section>
+  {% endif %}
+
+  {% if uploaded_image %}
+  <main class="dashboard">
+    <div class="card">
+      <span class="section-title">Znalezione produkty</span>
+      <table>
+        <tbody>
+          <tr><td>Jajka kurze</td><td>6 szt.</td></tr>
+          <tr><td>Pomidory malinowe</td><td>4 szt.</td></tr>
+          <tr><td>Cebula biała</td><td>2 szt.</td></tr>
+          <tr><td>Masło</td><td>1 szt.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <span class="section-title">Sugestie przepisów</span>
+      <div class="recipe-box">
+        <h4>Szakszuka</h4>
+        <p>Wykorzystasz: <b>Jajka, Pomidory, Cebula</b></p>
+      </div>
+      <div class="recipe-box">
+        <h4>Puszysty omlet</h4>
+        <p>Wykorzystasz: <b>Jajka, Masło</b></p>
+      </div>
+      <div class="recipe-box">
+        <h4>Lekka sałatka</h4>
+        <p>Wykorzystasz: <b>Pomidory, Cebula</b></p>
+      </div>
+    </div>
+  </main>
+  {% endif %}
+{% if user_recipes %}
+<section class="user-recipes">
+
+  <div class="card">
+    <span class="section-title">Przepisy użytkownika</span>
+
+    {% for recipe in user_recipes %}
+      <div class="recipe-box">
+        <h4>{{ recipe.name }}</h4>
+        <p>
+          <b>Składniki:</b>
+          {{ recipe.ingredients }}
+        </p>
+      </div>
+    {% endfor %}
+
+  </div>
+
+</section>
+{% endif %}
+
+<div class="auth-modal" id="auth-modal">
+
+  <div class="auth-box">
+
+    <button class="close-btn" onclick="closeModal()">
+      ✕
+    </button>
+
+    <div class="auth-tabs">
+      <button onclick="showLogin()" id="login-tab">
+        Logowanie
+      </button>
+
+      <button onclick="showRegister()" id="register-tab">
+        Rejestracja
+      </button>
+    </div>
+
+
+    <form action="/login" method="POST" id="login-form">
+
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        required
+      >
+
+      <input
+        type="password"
+        name="password"
+        placeholder="Hasło"
+        required
+      >
+
+      <button type="submit" class="add-btn">
+        Zaloguj
+      </button>
+
+    </form>
+
+
+    <form action="/register" method="POST" id="register-form" style="display:none;">
+
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        required
+      >
+
+      <input
+        type="password"
+        name="password"
+        placeholder="Hasło"
+        required
+      >
+
+      <button type="submit" class="add-btn">
+        Zarejestruj
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+  <script>
+    const toggle = document.getElementById('theme-toggle');
+    const body = document.body;
+
+    toggle.addEventListener('click', () => {
+      if (body.hasAttribute('data-theme')) {
+        body.removeAttribute('data-theme');
+        toggle.innerText = '☀️';
+      } else {
+        body.setAttribute('data-theme', 'light');
+        toggle.innerText = '🌙';
+      }
+    });
+
+    function openModal() {
+  document.getElementById('auth-modal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('auth-modal').style.display = 'none';
+}
+
+function showLogin() {
+  document.getElementById('login-form').style.display = 'flex';
+  document.getElementById('register-form').style.display = 'none';
+}
+
+function showRegister() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('register-form').style.display = 'flex';
+}
+  </script>
+</body>
+</html>

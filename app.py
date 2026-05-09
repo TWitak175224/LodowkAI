@@ -131,6 +131,7 @@ def register():
     return redirect(url_for('index'))
 
 
+
 @app.route('/login', methods=['POST'])
 def login():
 
